@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_event_company_certificate_wizard,access.event.company.certificate.wizard,model_event_company_certificate_wizard,event.group_event_user,1,1,1,1
+access_event_signup_sheet_wizard,access.event.signup.sheet.wizard,model_event_signup_sheet_wizard,event.group_event_user,1,1,1,1

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Full-page documents: margins are handled by the report stylesheet. -->
+        <record id="paperformat_certificate" model="report.paperformat">
+            <field name="name">Certificate (US Letter Landscape)</field>
+            <field name="default" eval="False"/>
+            <field name="format">Letter</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">0</field>
+            <field name="margin_bottom">0</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+            <field name="css_margins" eval="False"/>
+        </record>
+
+        <record id="paperformat_signup_sheet" model="report.paperformat">
+            <field name="name">Signup Sheet (US Letter Portrait)</field>
+            <field name="default" eval="False"/>
+            <field name="format">Letter</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">0</field>
+            <field name="margin_bottom">0</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+            <field name="css_margins" eval="False"/>
+        </record>
+    </data>
+</odoo>

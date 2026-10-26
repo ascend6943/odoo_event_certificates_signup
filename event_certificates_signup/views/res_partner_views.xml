@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_inherit_instructor_signature" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.instructor.signature</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='sales_purchases']//group[@name='misc']" position="after">
+                <group string="Instructor Signature" name="instructor_signature_group">
+                    <field name="instructor_signature" widget="image" class="oe_avatar"
+                           placeholder="Transparent-background PNG signature"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,200 @@
+// Report styles for Event Certificates & Signup Sheets.
+// Page size/orientation is defined by the report paper formats
+// (report.paperformat records), so the CSS only handles inner spacing.
+
+.o_certificate_page,
+.o_signup_page {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    color: #212529;
+    font-family: 'Lato', 'Helvetica', 'Arial', sans-serif;
+    overflow: hidden;
+}
+
+.o_certificate_page {
+    padding: 12mm 22mm;
+    // Landscape US Letter printable height (margins are 0 in the paper format).
+    height: 215mm;
+}
+
+.o_signup_page {
+    padding: 16mm 18mm;
+    // Portrait US Letter printable height.
+    height: 279mm;
+}
+
+// ---------------------------------------------------------------------
+// Certificate
+// ---------------------------------------------------------------------
+.o_certificate_page {
+    text-align: center;
+    border: 6px double #1f3b63;
+    border-radius: 4px;
+
+    .o_certificate_title {
+        margin-top: 6mm;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #1f3b63;
+    }
+
+    .o_certificate_company {
+        margin: 13mm 0 9mm 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #000;
+    }
+
+    .o_certificate_intro {
+        margin-bottom: 4mm;
+        font-size: 15px;
+    }
+
+    .o_certificate_topics {
+        display: inline-block;
+        margin: 0 auto 6mm auto;
+        padding: 0;
+        text-align: left;
+        font-size: 16px;
+        list-style: none;
+
+        li {
+            position: relative;
+            padding-left: 16px;
+            line-height: 1.7;
+
+            &:before {
+                content: '\2022';
+                position: absolute;
+                left: 0;
+            }
+        }
+    }
+
+    .o_certificate_signoff {
+        width: 100%;
+        margin-top: 16mm;
+        font-size: 14px;
+
+        .o_label {
+            width: 50%;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        td {
+            border: none;
+            padding: 2px 0;
+        }
+    }
+
+    .o_certificate_signature {
+        width: 60%;
+        margin: 8mm auto 0 auto;
+        text-align: center;
+    }
+}
+
+.o_signature_line {
+    border-top: 1px solid #333;
+    margin-top: 3mm;
+}
+
+.o_signature_label {
+    margin-top: 2mm;
+    font-size: 13px;
+}
+
+// ---------------------------------------------------------------------
+// Signup sheet
+// ---------------------------------------------------------------------
+.o_signup_page {
+    .o_signup_company {
+        font-size: 22px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .o_signup_title {
+        margin-bottom: 9mm;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .o_signup_info {
+        width: 100%;
+        margin-bottom: 7mm;
+        font-size: 13px;
+
+        td {
+            border: none;
+            padding: 1.5mm 0;
+            vertical-align: top;
+        }
+
+        .o_label {
+            width: 35mm;
+            font-weight: 700;
+        }
+    }
+
+    .o_signup_ack {
+        margin-bottom: 4mm;
+        font-size: 12px;
+        font-style: italic;
+    }
+
+    .o_signup_lines {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+
+        th {
+            border: none;
+            padding: 0 0 2mm 0;
+            text-align: left;
+        }
+
+        td {
+            height: 9mm;
+            border-bottom: 1px solid #666;
+        }
+
+        th:first-child,
+        td:first-child {
+            padding-right: 8mm;
+        }
+    }
+
+    .o_signup_instructor {
+        margin-top: 11mm;
+        font-size: 13px;
+    }
+
+    .o_signup_instructor_row {
+        margin-bottom: 4mm;
+
+        .o_label {
+            font-weight: 700;
+        }
+    }
+
+    .o_signature_block {
+        width: 70mm;
+        margin-left: auto;
+        text-align: center;
+    }
+
+    .o_signature_image {
+        max-height: 18mm;
+        max-width: 60mm;
+        margin-bottom: 1mm;
+    }
+
+    .o_signature_caption {
+        font-size: 11px;
+    }
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report action -->
+    <record id="action_event_company_certificate_report" model="ir.actions.report">
+        <field name="name">Company Certificates</field>
+        <field name="model">event.event</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">event_certificates_signup.company_certificate_report</field>
+        <field name="report_file">event_certificates_signup.company_certificate_report</field>
+        <field name="paperformat_id" ref="event_certificates_signup.paperformat_certificate"/>
+        <field name="print_report_name">'Company Certificates - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="event.model_event_event"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Wizard action, used as a stat button on the event form -->
+    <record id="action_event_company_certificate_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Company Certificates</field>
+        <field name="res_model">event.company.certificate.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_event_id': active_id, 'default_event_ids': [active_id]}</field>
+        <field name="binding_model_id" ref="event.model_event_event"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <template id="company_certificate_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="event" t-value="doc['event']"/>
+                <t t-if="not doc['certificates']">
+                    <div class="o_certificate_page">
+                        <div class="alert alert-info">
+                            No company could be determined from the attendees of <t t-out="event.name"/>.
+                        </div>
+                    </div>
+                </t>
+                <t t-foreach="doc['certificates']" t-as="certificate">
+                    <div class="o_certificate_page"
+                         t-att-style="'page-break-after: always;' if not (certificate_last and doc_last) else ''">
+                        <t t-if="certificate['custom_html']">
+                            <t t-out="certificate['custom_html']"/>
+                        </t>
+                        <t t-else="">
+                            <div class="o_certificate_title">Safety Training Certificate</div>
+                            <div class="o_certificate_company"><t t-out="certificate['company']"/></div>
+                            <p class="o_certificate_intro">Has participated in safety training on:</p>
+                            <ul class="o_certificate_topics">
+                                <li t-foreach="doc['topics']" t-as="topic">
+                                    <t t-out="topic"/>
+                                </li>
+                                <li t-if="not doc['topics']">No topic recorded for this event</li>
+                            </ul>
+                            <table class="o_certificate_signoff">
+                                <tr>
+                                    <td class="o_label">Presented By:</td>
+                                    <td class="text-end"><t t-out="doc['event_date']"/></td>
+                                </tr>
+                            </table>
+                            <div class="o_certificate_signature">
+                                <div class="o_signature_line"></div>
+                                <div class="o_signature_label">
+                                    <t t-out="doc['presented_by']"/>
+                                    <t t-if="doc['presented_by']"> Representative</t>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

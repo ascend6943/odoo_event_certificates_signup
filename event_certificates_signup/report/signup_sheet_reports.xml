@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report action -->
+    <record id="action_event_signup_sheet_report" model="ir.actions.report">
+        <field name="name">Signup Sheets</field>
+        <field name="model">event.event</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">event_certificates_signup.signup_sheet_report</field>
+        <field name="report_file">event_certificates_signup.signup_sheet_report</field>
+        <field name="paperformat_id" ref="event_certificates_signup.paperformat_signup_sheet"/>
+        <field name="print_report_name">'Signup Sheets - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="event.model_event_event"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Wizard action, used as a stat button on the event form -->
+    <record id="action_event_signup_sheet_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Signup Sheets</field>
+        <field name="res_model">event.signup.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_event_id': active_id, 'default_event_ids': [active_id]}</field>
+        <field name="binding_model_id" ref="event.model_event_event"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <template id="signup_sheet_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="event" t-value="doc['event']"/>
+                <t t-if="not doc['sheets']">
+                    <div class="o_signup_page">
+                        <div class="alert alert-info">
+                            No topic or company could be generated for <t t-out="event.name"/>.
+                        </div>
+                    </div>
+                </t>
+                <t t-foreach="doc['sheets']" t-as="sheet">
+                    <div class="o_signup_page"
+                         t-att-style="'page-break-after: always;' if not (sheet_last and doc_last) else ''">
+                        <div class="o_signup_company"><t t-out="sheet['company'] or '-'"/></div>
+                        <div class="o_signup_title">Safety Training Sign Up Sheet</div>
+                        <table class="o_signup_info">
+                            <tr>
+                                <td class="o_label">Conducted By:</td>
+                                <td><t t-out="sheet['presented_by']"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_label">Date:</td>
+                                <td><t t-out="sheet['event_date']"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_label">Topic:</td>
+                                <td><t t-out="sheet['topic']"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_label">Start Time:</td>
+                                <td><t t-out="sheet['start_time']"/></td>
+                            </tr>
+                            <tr>
+                                <td class="o_label">Finish Time:</td>
+                                <td><t t-out="sheet['finish_time']"/></td>
+                            </tr>
+                        </table>
+                        <p class="o_signup_ack">By signing, I acknowledge that I attended the above training session.</p>
+                        <table class="o_signup_lines">
+                            <thead>
+                                <tr>
+                                    <th>Employee Name (printed):</th>
+                                    <th>Signature:</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="range(14)" t-as="line">
+                                    <td/>
+                                    <td/>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="o_signup_instructor">
+                            <div class="o_signup_instructor_row">
+                                <span class="o_label">Instructor:</span>
+                                <span><t t-out="sheet['instructor_name']"/></span>
+                            </div>
+                            <div class="o_signature_block">
+                                <t t-if="sheet['signature']">
+                                    <img t-att-src="image_data_uri(sheet['signature'])" class="o_signature_image" alt="Instructor signature"/>
+                                </t>
+                                <div class="o_signature_line"></div>
+                                <div class="o_signature_caption">Signature</div>
+                                <div class="o_signature_caption">Date</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
