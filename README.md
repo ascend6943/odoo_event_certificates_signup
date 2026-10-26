@@ -4,7 +4,6 @@ An Odoo 19 addon for printing company attendance certificates and topic-specific
 
 **Technical name:** `event_certificates_signup`  
 **License:** LGPL-3.0  
-**Author:** Dawayne Safety Consulting
 
 ## Features
 
