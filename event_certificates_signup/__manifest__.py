@@ -44,6 +44,6 @@ and ``event.track`` models and do not alter the standard attendee workflow.
     },
     'installable': True,
     'application': False,
-    'author': 'Dawayne Safety Consulting',
+    'author': 'Quietwave IT',
     'license': 'LGPL-3',
 }
