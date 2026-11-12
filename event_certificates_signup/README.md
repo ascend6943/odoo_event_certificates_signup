@@ -1,5 +1,7 @@
 # Event Certificates & Signup Sheets
 
+**Module version:** `19.0.1.2.0`
+
 Adds two printable documents to Odoo Events for a safety training company:
 
 1. **Company Certificate** – one certificate per company represented among the
@@ -18,27 +20,35 @@ is **not** modified.
 
 - Odoo 19 (Community or Enterprise)
 - `event` and `website_event_track` (the "Events" and "Advanced Events" apps)
-- `wkhtmltopdf` (standard Odoo dependency for PDF reports)
+- **PyPDF2** and **ReportLab** in the Odoo service's Python environment
+  (declared in the addon manifest; they may already be installed with Odoo)
+- Odoo's bundled **PDF.js** assets and **Lato** fonts for the PDF designers
+- `wkhtmltopdf` for HTML/default PDF reports; uploaded-PDF overlays are
+  generated directly with PyPDF2 and ReportLab
 
-No extra Python package is required.
+Verify the Python dependencies before installing or upgrading. If missing,
+install them through your deployment's dependency-management process in the
+same environment that runs Odoo. PDF.js does not require a separate install.
 
 ## Installation
 
-The module lives in the custom addons path already configured in
-`/opt/odoo/config/odoo.conf` (`/opt/odoo/custom-addons`).
+Add the repository directory to Odoo's `addons_path`, or copy the inner
+`event_certificates_signup/` folder into an existing custom addons directory.
+See the [repository installation guide](../README.md#installation) for details.
 
 From the Odoo UI: **Apps → Update Apps List → search "Event Certificates" →
 Install**.
 
-From the command line:
+From the command line, using your deployment's executable and configuration:
 
 ```bash
-sudo -u odoo /opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin \
-    -c /opt/odoo/config/odoo.conf -d <database> \
+odoo-bin -c /path/to/odoo.conf -d DATABASE \
     -i event_certificates_signup --stop-after-init --no-http
 ```
 
-Then restart the Odoo service.
+For an existing installation, back up the database and replace `-i` with `-u`.
+Run during a maintenance window with the regular Odoo service stopped, then
+restart the service and refresh the browser to reload updated backend assets.
 
 ## Configuration
 
@@ -72,9 +82,11 @@ to the existing HTML/default layout; saved HTML and field positions are retained
 Signup sheets have their own independent PDF designer below. This is an overlay
 designer, not an editor for existing text/artwork inside the uploaded PDF.
 
-No additional packages are needed: PDF.js, PyPDF2 and ReportLab are already part
-of this Odoo installation. The module embeds Odoo's existing Lato font for Unicode
-company names. Always save your event after making positioning changes.
+PDF previews use Odoo's bundled PDF.js, and printed overlays use PyPDF2 and
+ReportLab from the Odoo Python environment. The module embeds Odoo's existing
+Lato font for Unicode company names. Always save your event after making
+positioning changes. Add at least one field before printing certificates for
+companies or signup sheets for topics.
 
 ### PDF signup sheet designer
 
@@ -131,6 +143,10 @@ The template is a plain-text field, so a **complete HTML document** (including
 its own `<style>` block) can be pasted as-is. The report extracts the styles and
 the `<body>` content before rendering, so you do not have to trim the document
 envelope yourself.
+
+Use trusted HTML source only. These source fields preserve markup verbatim and
+do **not** apply Odoo's rich-text sanitization. Ordinary event/company values
+inserted through placeholders are HTML-escaped.
 
 Available placeholders:
 
@@ -227,12 +243,12 @@ has been uploaded.
 > ignored by the renderer) and the whitespace entities are normalised to plain
 > spaces, so no stray `Â` characters appear in the PDF.
 
-Why HTML and not a `.docx`/PDF upload? Odoo reports are rendered through QWeb
-(HTML + CSS). An uploaded binary template cannot be bidirectionally merged with
-live data in a reliable, supported way. A plain-text HTML template with
-placeholders is the maintainable Odoo-native alternative and can be styled to
-match any letterhead. If a fixed background image is required, add it as a
-background in the HTML template.
+Choose **PDF** when you already have fixed artwork and want to position event
+data on top of it. Choose **HTML source** when you want to control the report's
+markup and CSS through Odoo's QWeb reporting path. Uploaded Word (`.docx`)
+templates are not supported. In PDF fields, `{{topics}}` becomes newline-separated
+text rather than an HTML list, and `{{instructor_signature}}` is an image box;
+PDF text fields do not interpret HTML.
 
 > **Legacy rich-text fields.** The older `Certificate Template (rich text)` and
 > `Signup Sheet Template (rich text)` fields are still supported as a fallback
@@ -250,6 +266,8 @@ The module ships two paper formats (matching the provided samples):
 They are assigned to the report actions and can be changed under
 *Settings → Technical → Reporting → Paper Formats* and
 *Settings → Technical → Actions → Reports* if A4 is preferred.
+These formats apply to HTML/default reports. Uploaded PDF backgrounds retain
+their own page size and orientation instead.
 
 ## Usage
 
@@ -285,15 +303,17 @@ report then generates:
 ## Tests
 
 ```bash
-sudo -u odoo /opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin \
-    -c /opt/odoo/config/odoo.conf -d <database> \
+odoo-bin -c /path/to/odoo.conf -d TEST_DATABASE \
     -u event_certificates_signup --test-enable \
     --test-tags /event_certificates_signup --stop-after-init --no-http
 ```
 
-The tests cover company resolution and deduplication (including cancelled
-registrations and attendees without a company) and the data and templates of
-both reports.
+Run against a disposable test database with dependencies installed. Tests cover
+company resolution and deduplication, both reports' data, HTML source and legacy
+templates, signature handling, PDF validation and rendering, page counts,
+rotated/cropped backgrounds, text fitting, preview values, access checks, and
+HTML fallback. These tests do not verify the deployment's `wkhtmltopdf` setup;
+use test prints to check the final layout.
 
 ## Known limitations
 
@@ -304,5 +324,9 @@ both reports.
 - If no company can be resolved for any attendee, the signup report still
   generates one sheet per topic with a blank company field, and the certificate
   report prints an informational page.
-- The HTML certificate template is sanitized by Odoo on save; scripts and event
-  handlers are removed.
+- PDF backgrounds must be single-page, unencrypted, and no larger than 20 MB.
+  The designer overlays fields; it cannot erase existing PDF text or artwork.
+- Signup PDF backgrounds must already contain any blank attendance table or
+  signature lines. They are not populated with an attendee roster.
+- HTML source templates are trusted markup, not sandboxed or sanitized rich
+  text. The legacy rich-text fields still use Odoo's rich-text handling.
