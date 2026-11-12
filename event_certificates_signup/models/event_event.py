@@ -6,17 +6,50 @@ from odoo.tools import format_date
 class EventEvent(models.Model):
     _inherit = 'event.event'
 
-    certificate_template_html = fields.Html(
-        string='Certificate Template (HTML)',
-        sanitize_attributes=False,
-        help="Optional HTML template used to render the company certificate. "
-             "If left empty, the default certificate layout is used.\n"
+    certificate_template = fields.Text(
+        string='Certificate Template (HTML source)',
+        help="Optional HTML source used to render the company certificate. "
+             "The content is stored and used verbatim, so a complete HTML "
+             "document (with its own <style> block) can be pasted here without "
+             "being altered. If left empty, the layout below is used.\n"
              "Available placeholders:\n"
              "{{company}} - the attending company name\n"
              "{{event_name}} - the event name\n"
              "{{event_date}} - the event date\n"
              "{{topics}} - an HTML list of the presented topic titles\n"
              "{{presented_by}} - the name of the organizer issuing the certificate",
+    )
+    certificate_template_html = fields.Html(
+        string='Certificate Template (rich text)',
+        sanitize_attributes=False,
+        help="Legacy rich-text template. Prefer 'Certificate Template (HTML "
+             "source)' above; it preserves HTML/CSS exactly. This field is only "
+             "used when the HTML source field is empty.",
+    )
+    signup_sheet_template = fields.Text(
+        string='Signup Sheet Template (HTML source)',
+        help="Optional HTML source used to render the topic signup sheets. "
+             "The content is stored and used verbatim, so a complete HTML "
+             "document (with its own <style> block) can be pasted here without "
+             "being altered. If left empty, the default signup sheet layout is "
+             "used.\n"
+             "Available placeholders:\n"
+             "{{company}} - the attending company name\n"
+             "{{event_name}} - the event name\n"
+             "{{event_date}} - the event date\n"
+             "{{topic}} - the topic (track) title\n"
+             "{{start_time}} - the topic start time\n"
+             "{{finish_time}} - the topic finish time\n"
+             "{{instructor}} - the instructor name (blank when unknown)\n"
+             "{{instructor_signature}} - the instructor signature image, ready to use in an <img src>\n"
+             "{{presented_by}} - the name of the organizer issuing the sheet",
+    )
+    signup_sheet_template_html = fields.Html(
+        string='Signup Sheet Template (rich text)',
+        sanitize_attributes=False,
+        help="Legacy rich-text template. Prefer 'Signup Sheet Template (HTML "
+             "source)' above; it preserves HTML/CSS exactly. This field is only "
+             "used when the HTML source field is empty.",
     )
 
     # ------------------------------------------------------------------

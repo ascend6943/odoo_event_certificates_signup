@@ -28,5 +28,5 @@ class EventCompanyCertificateWizard(models.TransientModel):
         if not events:
             raise UserError(_("Please select at least one event."))
         return self.env.ref(
-            'event_certificates_signup.action_company_certificate_report'
+            'event_certificates_signup.action_event_company_certificate_report'
         ).report_action(events)

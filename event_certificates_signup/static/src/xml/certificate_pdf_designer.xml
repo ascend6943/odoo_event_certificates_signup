@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="event_certificates_signup.CertificatePdfDesigner">
+        <div class="o_certificate_pdf_designer">
+            <t t-if="hasPdf">
+                <div t-if="state.layoutError" class="alert alert-danger" role="alert" t-out="state.layoutError"/>
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <t t-if="!props.readonly and !state.layoutError">
+                        <span class="fw-bold">Add field:</span>
+                        <button t-foreach="fieldNames" t-as="name" t-key="name" type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                t-on-click="() => this.addField(name)" t-out="'{{' + name + '}}'"/>
+                    </t>
+                    <button type="button" class="btn btn-secondary btn-sm" t-on-click="toggleValues"
+                            t-att-disabled="!props.record.resId">
+                        <t t-if="state.showValues">Show placeholders</t>
+                        <t t-else="">Show event data</t>
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" t-on-click="testPrint"
+                            t-att-disabled="!state.fields.length or !!state.error or !!state.layoutError">
+                        Save &amp; test print
+                    </button>
+                </div>
+                <div t-if="state.loading" class="text-muted mb-2" role="status">Loading PDF preview…</div>
+                <div t-if="state.error" class="alert alert-warning" role="alert" t-out="state.error"/>
+                <div class="o_certificate_pdf_workspace">
+                    <div class="o_certificate_pdf_preview">
+                        <div class="o_certificate_pdf_stage" t-ref="stage"
+                             t-att-style="'aspect-ratio:' + state.pageWidth + '/' + state.pageHeight"
+                             t-on-click="() => { state.selectedId = null; }">
+                            <canvas t-ref="canvas" class="o_certificate_pdf_canvas" aria-label="PDF template background"/>
+                            <div t-foreach="state.fields" t-as="field" t-key="field.id"
+                                 class="o_certificate_pdf_field"
+                                 t-att-class="{ 'o_selected': state.selectedId === field.id, 'o_readonly': props.readonly }"
+                                 t-att-style="fieldStyle(field)" role="button" tabindex="0"
+                                 t-att-aria-label="field.template"
+                                 t-on-click.stop="() => { state.selectedId = field.id; }"
+                                 t-on-pointerdown="(ev) => this.startDrag(ev, field)"
+                                 t-on-keydown="(ev) => this.onFieldKeydown(ev, field)">
+                                <t t-if="field.kind === 'image'">
+                                    <img t-if="signatureSource(field)" t-att-src="signatureSource(field)"
+                                         class="o_certificate_pdf_signature" alt="Instructor signature" draggable="false"/>
+                                    <span t-elif="!state.showValues" class="o_certificate_pdf_text">{{instructor_signature}}</span>
+                                </t>
+                                <span t-else="" class="o_certificate_pdf_text" t-out="displayText(field)"/>
+                                <span t-if="!props.readonly and state.selectedId === field.id"
+                                      class="o_certificate_pdf_resize" title="Drag to resize"
+                                      t-on-pointerdown="(ev) => this.startDrag(ev, field, true)"/>
+                            </div>
+                        </div>
+                        <div class="text-muted small mt-2">
+                            Drag a field to move it. Drag its bottom-right handle to resize.
+                            Arrow keys nudge a selected field; Shift + arrow moves farther.
+                            Text wraps and shrinks to fit when printed. Use test print for the final result.
+                        </div>
+                    </div>
+                    <div class="o_certificate_pdf_properties border rounded p-3">
+                        <t t-if="selected">
+                            <label class="fw-bold" t-att-for="props.name + '_text'">Field text</label>
+                            <textarea t-att-id="props.name + '_text'" class="form-control mb-3" rows="3"
+                                      t-att-value="selected.template" t-att-disabled="props.readonly or selected.kind === 'image'"
+                                      t-on-change="(ev) => this.updateSelected('template', ev)"/>
+                            <div t-if="selected.kind === 'image'" class="small text-muted mb-3">
+                                The instructor's signature is fitted inside this box without stretching.
+                                It is blank when no signature is available. Use Show event data to preview it.
+                            </div>
+                            <div t-else="" class="small text-muted mb-3">Use a placeholder, or combine it with text such as Date: {{event_date}}.</div>
+                            <div class="row g-2">
+                                <t t-foreach="['x', 'y', 'width', 'height']" t-as="key" t-key="key">
+                                    <div class="col-6">
+                                        <label t-att-for="props.name + '_' + key" class="text-capitalize" t-out="key + ' (%)'"/>
+                                        <input t-att-id="props.name + '_' + key" type="number" step="0.1" min="0" max="100"
+                                               class="form-control" t-att-value="selected[key].toFixed(2)"
+                                               t-att-disabled="props.readonly" t-on-change="(ev) => this.updateSelected(key, ev)"/>
+                                    </div>
+                                </t>
+                                <div t-if="selected.kind !== 'image'" class="col-6">
+                                    <label t-att-for="props.name + '_font_size'">Font size (pt)</label>
+                                    <input t-att-id="props.name + '_font_size'" type="number" step="0.5" min="4" max="96"
+                                           class="form-control" t-att-value="selected.font_size" t-att-disabled="props.readonly"
+                                           t-on-change="(ev) => this.updateSelected('font_size', ev)"/>
+                                </div>
+                                <div t-if="selected.kind !== 'image'" class="col-6">
+                                    <label t-att-for="props.name + '_color'">Text color</label>
+                                    <input t-att-id="props.name + '_color'" type="color" class="form-control form-control-color"
+                                           t-att-value="selected.color" t-att-disabled="props.readonly"
+                                           t-on-change="(ev) => this.updateSelected('color', ev)"/>
+                                </div>
+                            </div>
+                            <t t-if="selected.kind !== 'image'">
+                            <label t-att-for="props.name + '_align'" class="mt-3">Alignment</label>
+                            <select t-att-id="props.name + '_align'" class="form-select" t-att-disabled="props.readonly"
+                                    t-on-change="(ev) => this.updateSelected('align', ev)">
+                                <option value="left" t-att-selected="selected.align === 'left'">Left</option>
+                                <option value="center" t-att-selected="selected.align === 'center'">Center</option>
+                                <option value="right" t-att-selected="selected.align === 'right'">Right</option>
+                            </select>
+                            <label class="d-flex gap-2 align-items-center my-3">
+                                <input type="checkbox" t-att-checked="selected.bold" t-att-disabled="props.readonly"
+                                       t-on-change="(ev) => this.updateSelected('bold', ev)"/> Bold
+                            </label>
+                            </t>
+                            <button t-if="!props.readonly" type="button" class="btn btn-outline-danger btn-sm" t-on-click="deleteSelected">
+                                Remove field
+                            </button>
+                        </t>
+                        <t t-else="">
+                            <strong>Position your fields</strong>
+                            <p class="text-muted mt-2">Add a field above, then click or drag it on the PDF. Its text and formatting options appear here.</p>
+                        </t>
+                    </div>
+                </div>
+            </t>
+            <div t-else="" class="text-muted py-2">Upload a PDF above to start positioning your fields.</div>
+        </div>
+    </t>
+</templates>

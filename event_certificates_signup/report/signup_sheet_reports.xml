@@ -39,6 +39,10 @@
                 <t t-foreach="doc['sheets']" t-as="sheet">
                     <div class="o_signup_page"
                          t-att-style="'page-break-after: always;' if not (sheet_last and doc_last) else ''">
+                        <t t-if="sheet['custom_html']">
+                            <t t-out="sheet['custom_html']"/>
+                        </t>
+                        <t t-else="">
                         <div class="o_signup_company"><t t-out="sheet['company'] or '-'"/></div>
                         <div class="o_signup_title">Safety Training Sign Up Sheet</div>
                         <table class="o_signup_info">
@@ -92,6 +96,7 @@
                                 <div class="o_signature_caption">Date</div>
                             </div>
                         </div>
+                        </t>
                     </div>
                 </t>
             </t>

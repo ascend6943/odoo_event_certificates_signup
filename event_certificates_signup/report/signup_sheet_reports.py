@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import api, models
 from odoo.tools import format_time
+from odoo.tools.image import image_data_uri
+
+from . import template_utils
 
 
 class SignupSheetReport(models.AbstractModel):
@@ -19,8 +22,61 @@ class SignupSheetReport(models.AbstractModel):
         )
 
     @api.model
-    def _get_sheet_for_track(self, event, track, company, event_date, presented_by):
-        return {
+    def _get_raw_custom_template(self, event):
+        """Return the configured template source, preferring the plain text field.
+
+        ``signup_sheet_template`` is a plain ``Text`` field: it stores HTML/CSS
+        verbatim. ``signup_sheet_template_html`` is a sanitized ``Html`` field
+        kept for backwards compatibility; because the sanitizer escapes pasted
+        source it is only used as a fallback and gets extra cleanup.
+        """
+        plain = (event.signup_sheet_template or '').strip()
+        if plain:
+            return plain, False
+        legacy = str(event.signup_sheet_template_html or '').strip()
+        if legacy:
+            return legacy, True
+        return '', False
+
+    @api.model
+    def _restore_legacy_source(self, raw_html):
+        """Backwards-compatible wrapper around the shared helper."""
+        return template_utils.restore_legacy_source(raw_html)
+
+    @api.model
+    def _normalize_custom_html(self, raw_html, legacy=False):
+        """Backwards-compatible wrapper around the shared helper."""
+        return template_utils.normalize_template(raw_html, legacy=legacy)
+
+    @api.model
+    def _render_sheet_template(self, event, sheet):
+        """Render the optional event HTML signup sheet template safely."""
+        raw, legacy = self._get_raw_custom_template(event)
+        template = self._normalize_custom_html(raw, legacy=legacy)
+        if not template:
+            return False
+        signature_uri = ''
+        if sheet['signature']:
+            signature_uri = image_data_uri(sheet['signature'])
+        replacements = {
+            'company': sheet['company'] or '',
+            'event_name': event.name or '',
+            'event_date': sheet['event_date'] or '',
+            'topic': sheet['topic'] or '',
+            'start_time': sheet['start_time'] or '',
+            'finish_time': sheet['finish_time'] or '',
+            'instructor': sheet['instructor_name'] or '',
+            # Attribute-only value: expanded to a data URI inside an attribute
+            # such as ``<img src="{{instructor_signature}}"/>`` and emptied when
+            # used as plain text (a raw data URI would print as base64 text).
+            'instructor_signature': template_utils.ResourceValue(signature_uri),
+            'presented_by': sheet['presented_by'] or '',
+        }
+        return template_utils.render_template(template, replacements)
+
+    @api.model
+    def _get_sheet_for_track(self, event, track, company, event_date, presented_by, render_custom=True):
+        sheet = {
             'company': company,
             'track': track,
             'topic': track.name or '',
@@ -31,6 +87,8 @@ class SignupSheetReport(models.AbstractModel):
             'event_date': event_date,
             'presented_by': presented_by,
         }
+        sheet['custom_html'] = self._render_sheet_template(event, sheet) if render_custom else False
+        return sheet
 
     @api.model
     def _get_report_values(self, docids, data=None):

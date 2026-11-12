@@ -1,0 +1,88 @@
+@font-face {
+    font-family: 'EventCertificateLato';
+    src: url('/web/static/fonts/lato/Lato-Reg-webfont.ttf') format('truetype');
+    font-weight: 400;
+    // Use the font's OS/2 metrics, also used by ReportLab, rather than the
+    // browser's platform-dependent hhea metrics. This aligns PDF text baselines.
+    ascent-override: 80.517578125%;
+    descent-override: 19.482421875%;
+    line-gap-override: 0%;
+}
+@font-face {
+    font-family: 'EventCertificateLato';
+    src: url('/web/static/fonts/lato/Lato-Bol-webfont.ttf') format('truetype');
+    font-weight: 700;
+    ascent-override: 80.517578125%;
+    descent-override: 19.482421875%;
+    line-gap-override: 0%;
+}
+.o_certificate_pdf_designer {
+    width: 100%;
+    .o_certificate_pdf_workspace {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .o_certificate_pdf_preview {
+        flex: 1 1 450px;
+        min-width: 0;
+    }
+    .o_certificate_pdf_stage {
+        position: relative;
+        width: 100%;
+        background: white;
+        box-shadow: 0 1px 6px #0003;
+        overflow: hidden;
+    }
+    .o_certificate_pdf_canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+    .o_certificate_pdf_field {
+        position: absolute;
+        font-family: 'EventCertificateLato', sans-serif;
+        line-height: 1.2;
+        outline: 1px dashed #007bff99;
+        cursor: move;
+        user-select: none;
+        touch-action: none;
+        &.o_selected {
+            outline: 2px solid #007bff;
+            background-color: #007bff0d;
+            z-index: 2;
+        }
+        &.o_readonly { cursor: pointer; }
+    }
+    .o_certificate_pdf_text {
+        display: block;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 100%;
+        overflow: hidden;
+    }
+    .o_certificate_pdf_signature {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+    }
+    .o_certificate_pdf_resize {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        background: #007bff;
+        cursor: nwse-resize;
+        touch-action: none;
+    }
+    .o_certificate_pdf_properties {
+        flex: 0 0 240px;
+        max-width: 100%;
+        label { font-size: 0.85rem; }
+    }
+}

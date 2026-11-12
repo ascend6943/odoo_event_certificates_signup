@@ -21,13 +21,57 @@
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page string="Certificates" name="certificates">
-                    <group>
-                        <field name="certificate_template_html"
+                    <group string="PDF Certificate Designer">
+                        <field name="certificate_pdf_filename" invisible="1"/>
+                        <field name="certificate_pdf" filename="certificate_pdf_filename"
+                               options="{'accepted_file_extensions': '.pdf'}"/>
+                    </group>
+                    <div class="text-muted mb-3">
+                        Upload a single-page PDF with blank spaces for your event details.
+                        Add fields below, then drag them into place. Save the event before printing.
+                        Your PDF artwork and page size are preserved. This PDF takes priority over HTML templates.
+                    </div>
+                    <field name="certificate_pdf_layout" widget="certificate_pdf_designer" nolabel="1"/>
+                    <group string="HTML Template (fallback when no PDF is uploaded)">
+                        <field name="certificate_template"
+                               widget="text"
+                               nolabel="1"
                                placeholder="Optional: paste an HTML template using {{company}}, {{event_name}}, {{event_date}}, {{topics}} and {{presented_by}}"/>
                     </group>
                     <div class="text-muted">
-                        Leave empty to use the default certificate layout. The template is used once per attending company.
+                        The template is stored exactly as typed, so a complete HTML document (with its own &lt;style&gt; block) can be pasted here. Leave empty to use the default certificate layout. The template is used once per attending company.
                     </div>
+                    <group string="Advanced" groups="base.group_no_one">
+                        <field name="certificate_template_html"
+                               placeholder="Legacy rich-text template (only used when the HTML source above is empty)"/>
+                    </group>
+                </page>
+                <page string="Signup Sheets" name="signup_sheets">
+                    <group string="PDF Signup Sheet Designer">
+                        <field name="signup_sheet_pdf_filename" invisible="1"/>
+                        <field name="signup_sheet_pdf" filename="signup_sheet_pdf_filename"
+                               options="{'accepted_file_extensions': '.pdf'}"/>
+                    </group>
+                    <div class="text-muted mb-3">
+                        Upload a single-page signup sheet PDF, including your blank attendance area.
+                        Add text fields or the instructor signature, then drag and resize them on the PDF.
+                        One sheet is printed for each company and topic. Save the event before printing.
+                        This PDF takes priority over HTML signup templates.
+                    </div>
+                    <field name="signup_sheet_pdf_layout" widget="signup_sheet_pdf_designer" nolabel="1"/>
+                    <group string="HTML Template (fallback when no PDF is uploaded)">
+                        <field name="signup_sheet_template"
+                               widget="text"
+                               nolabel="1"
+                               placeholder="Optional: paste an HTML template using {{company}}, {{event_name}}, {{event_date}}, {{topic}}, {{start_time}}, {{finish_time}}, {{instructor}}, {{instructor_signature}} and {{presented_by}}"/>
+                    </group>
+                    <div class="text-muted">
+                        The template is stored exactly as typed, so a complete HTML document (with its own &lt;style&gt; block) can be pasted here. Leave empty to use the default signup sheet layout. The template is used once per company and topic.
+                    </div>
+                    <group string="Advanced" groups="base.group_no_one">
+                        <field name="signup_sheet_template_html"
+                               placeholder="Legacy rich-text template (only used when the HTML source above is empty)"/>
+                    </group>
                 </page>
             </xpath>
         </field>
