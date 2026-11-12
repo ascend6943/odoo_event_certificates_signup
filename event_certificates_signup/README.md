@@ -2,7 +2,7 @@
 
 **Module version:** `19.0.1.2.0`
 
-Adds two printable documents to Odoo Events for a safety training company:
+Adds two printable documents to Odoo Events:
 
 1. **Company Certificate** – one certificate per company represented among the
    event attendees (companies are deduplicated), showing the company name, the

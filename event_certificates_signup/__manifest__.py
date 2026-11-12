@@ -4,7 +4,7 @@
     'summary': 'Printable company certificates and topic-specific signup sheets for events',
     'version': '19.0.1.2.0',
     'category': 'Marketing/Events',
-    'website': 'https://www.odoo.com/app/events',
+    'website': 'https://github.com/ascend6943/odoo_event_certificates_signup',
     'description': """
 Event Certificates & Signup Sheets
 ==================================
@@ -51,6 +51,6 @@ and ``event.track`` models and do not alter the standard attendee workflow.
     },
     'installable': True,
     'application': False,
-    'author': 'Dawayne Safety Consulting',
+    'author': 'Community Contributors',
     'license': 'LGPL-3',
 }

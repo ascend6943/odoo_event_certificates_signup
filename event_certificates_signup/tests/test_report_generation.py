@@ -16,15 +16,15 @@ class TestReportGeneration(common.TransactionCase):
             'date_tz': 'UTC',
         })
         cls.instructor = cls.env['res.partner'].create({
-            'name': 'Merle L. Martin',
+            'name': 'Test Instructor',
         })
-        cls.company_acme = cls.env['res.partner'].create({
-            'name': 'Acme Corp',
+        cls.company_a = cls.env['res.partner'].create({
+            'name': 'Company A',
             'is_company': True,
         })
         cls.employee = cls.env['res.partner'].create({
             'name': 'John Doe',
-            'parent_id': cls.company_acme.id,
+            'parent_id': cls.company_a.id,
         })
         cls.env['event.registration'].create({
             'event_id': cls.event.id,
@@ -57,13 +57,13 @@ class TestReportGeneration(common.TransactionCase):
         docs = values['docs']
         self.assertEqual(len(docs), 1)
         doc = docs[0]
-        self.assertEqual(doc['companies'], ['Acme Corp'])
+        self.assertEqual(doc['companies'], ['Company A'])
         self.assertEqual(doc['topics'], sorted([
             'Defining and Implementing Housekeeping',
             'Pre-employment Safety Requirements',
         ]))
         self.assertEqual(len(doc['certificates']), 1)
-        self.assertEqual(doc['certificates'][0]['company'], 'Acme Corp')
+        self.assertEqual(doc['certificates'][0]['company'], 'Company A')
         self.assertEqual(doc['event_date'], 'October 8, 2026')
 
     def test_custom_certificate_template(self):
@@ -75,7 +75,7 @@ class TestReportGeneration(common.TransactionCase):
         report = self.env['report.event_certificates_signup.company_certificate_report']
         values = report._get_report_values(self.event.ids)
         custom_html = str(values['docs'][0]['certificates'][0]['custom_html'])
-        self.assertIn('Acme Corp', custom_html)
+        self.assertIn('Company A', custom_html)
         self.assertIn('October 8, 2026', custom_html)
         self.assertIn('<li>', custom_html)
         # Placeholders are fully replaced.
@@ -104,7 +104,7 @@ class TestReportGeneration(common.TransactionCase):
 
         values = report._get_report_values(self.event.ids)
         custom_html = str(values['docs'][0]['certificates'][0]['custom_html'])
-        self.assertIn('Acme Corp', custom_html)
+        self.assertIn('Company A', custom_html)
         self.assertIn('certificate-title', custom_html)
         self.assertIn('<li>', custom_html)
         self.assertNotIn('{{', custom_html)
@@ -158,7 +158,7 @@ class TestReportGeneration(common.TransactionCase):
 
         values = report._get_report_values(self.event.ids)
         custom_html = str(values['docs'][0]['certificates'][0]['custom_html'])
-        self.assertIn('Acme Corp', custom_html)
+        self.assertIn('Company A', custom_html)
         self.assertIn('<li>', custom_html)
         self.assertNotIn('{{', custom_html)
         self.assertNotIn('&lt;!DOCTYPE', custom_html)
@@ -172,8 +172,8 @@ class TestReportGeneration(common.TransactionCase):
         self.assertEqual(len(sheets), 2)
         by_topic = {sheet['topic']: sheet for sheet in sheets}
         sheet = by_topic['Defining and Implementing Housekeeping']
-        self.assertEqual(sheet['company'], 'Acme Corp')
-        self.assertEqual(sheet['instructor_name'], 'Merle L. Martin')
+        self.assertEqual(sheet['company'], 'Company A')
+        self.assertEqual(sheet['instructor_name'], 'Test Instructor')
         self.assertEqual(sheet['start_time'], '2:05 PM')
         self.assertEqual(sheet['finish_time'], '2:45 PM')
         # Track without an instructor must not break the report.
@@ -218,10 +218,10 @@ class TestReportGeneration(common.TransactionCase):
         self.assertNotIn('<!DOCTYPE', custom_html)
         self.assertNotIn('{{', custom_html)
         self.assertIn('Defining and Implementing Housekeeping', custom_html)
-        self.assertIn('Acme Corp', custom_html)
+        self.assertIn('Company A', custom_html)
         self.assertIn('2:05 PM', custom_html)
         self.assertIn('2:45 PM', custom_html)
-        self.assertIn('Merle L. Martin', custom_html)
+        self.assertIn('Test Instructor', custom_html)
         self.assertIn('October 8, 2026', custom_html)
 
     def test_signup_sheet_template_placeholder_signature(self):
@@ -301,7 +301,7 @@ class TestReportGeneration(common.TransactionCase):
         sheet = values['docs'][0]['sheets'][0]
         custom_html = str(sheet['custom_html'])
         self.assertIn('sheet', custom_html)
-        self.assertIn('Acme Corp', custom_html)
+        self.assertIn('Company A', custom_html)
         self.assertIn('Defining and Implementing Housekeeping', custom_html)
         self.assertNotIn('{{', custom_html)
 
@@ -322,4 +322,4 @@ class TestReportGeneration(common.TransactionCase):
         ):
             html, _content_type = self.env['ir.actions.report']._render_qweb_html(
                 xmlid, self.event.ids)
-            self.assertIn(b'Acme Corp', html)
+            self.assertIn(b'Company A', html)

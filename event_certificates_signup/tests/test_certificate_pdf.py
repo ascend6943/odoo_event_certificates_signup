@@ -38,7 +38,7 @@ class TestCertificatePdf(common.TransactionCase):
             'certificate_pdf_filename': 'certificate.pdf',
             'certificate_pdf_layout': json.dumps(cls.layout),
         })
-        for company in ['Acme Corp', 'ACME CORP', 'Beta Excavating']:
+        for company in ['Company A', 'COMPANY A', 'Company B']:
             cls.env['event.registration'].create({
                 'event_id': cls.event.id, 'name': company + ' attendee', 'company_name': company,
             })
@@ -80,8 +80,8 @@ class TestCertificatePdf(common.TransactionCase):
             self.assertNotIn('{{', text)
             self.assertEqual(float(page.mediabox.width), 792)
             self.assertEqual(float(page.mediabox.height), 612)
-        self.assertNotIn('Beta Excavating', pdf.pages[0].extract_text())
-        self.assertNotIn('acme corp', pdf.pages[1].extract_text().casefold())
+        self.assertNotIn('Company B', pdf.pages[0].extract_text())
+        self.assertNotIn('company a', pdf.pages[1].extract_text().casefold())
 
     def test_invalid_uploads_rejected(self):
         writer = PdfWriter()
@@ -118,7 +118,7 @@ class TestCertificatePdf(common.TransactionCase):
         self.assertEqual(float(result.pages[0].mediabox.width), 500)
         self.assertEqual(float(result.pages[0].mediabox.height), 700)
         self.assertEqual(result.pages[0].get('/Rotate', 0), 0)
-        self.assertIn('acme corp', result.pages[0].extract_text().casefold())
+        self.assertIn('company a', result.pages[0].extract_text().casefold())
 
     def test_no_companies_gives_information_page(self):
         self.event.registration_ids.unlink()
@@ -149,12 +149,12 @@ class TestCertificatePdf(common.TransactionCase):
 
     def test_preview_uses_existing_event_data(self):
         values = self.event.get_certificate_pdf_preview_values()
-        self.assertEqual(values['company'].casefold(), 'acme corp')
+        self.assertEqual(values['company'].casefold(), 'company a')
         self.assertEqual(values['topics'], 'Fall Protection')
         self.assertEqual(values['event_name'], self.event.name)
 
     def test_unicode_company_names_are_literal_text(self):
-        name = 'Müller & Söhne <Services>'
+        name = 'Tëst Cömpany & <Services>'
         self.event.registration_ids[0].company_name = name
         text = '\n'.join(page.extract_text() for page in self._render().pages)
         self.assertIn(name, text)
@@ -167,7 +167,7 @@ class TestCertificatePdf(common.TransactionCase):
         )
         # Odoo deliberately renders HTML rather than launching wkhtmltopdf in tests.
         self.assertEqual(kind, 'html')
-        self.assertIn(b'old html acme corp', content.lower())
+        self.assertIn(b'old html company a', content.lower())
 
     def test_pdf_report_checks_event_read_access(self):
         user = self.env['res.users'].create({

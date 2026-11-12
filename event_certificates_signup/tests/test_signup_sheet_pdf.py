@@ -45,7 +45,7 @@ class TestSignupSheetPdf(common.TransactionCase):
             'signup_sheet_pdf': cls.background, 'signup_sheet_pdf_filename': 'signup.pdf',
             'signup_sheet_pdf_layout': json.dumps(cls.layout),
         })
-        for company in ['Acme Corp', 'ACME CORP', 'Beta Excavating']:
+        for company in ['Company A', 'COMPANY A', 'Company B']:
             cls.env['event.registration'].create({
                 'event_id': cls.event.id, 'name': company + ' attendee', 'company_name': company,
             })
@@ -117,7 +117,7 @@ class TestSignupSheetPdf(common.TransactionCase):
         self.assertEqual(len(pdf.pages), 2)
         self.assertIn('Fall Protection', pdf.pages[0].extract_text())
         self.assertIn('Housekeeping', pdf.pages[1].extract_text())
-        self.assertNotIn('Acme', '\n'.join(page.extract_text() for page in pdf.pages))
+        self.assertNotIn('Company A', '\n'.join(page.extract_text() for page in pdf.pages))
 
     def test_no_topics_prints_information(self):
         self.event.track_ids.active = False
@@ -127,15 +127,15 @@ class TestSignupSheetPdf(common.TransactionCase):
 
     def test_inactive_topics_and_cancelled_registrations_ignored(self):
         self.track_2.active = False
-        self.event.registration_ids.filtered(lambda r: r.company_name.casefold() == 'acme corp').state = 'cancel'
+        self.event.registration_ids.filtered(lambda r: r.company_name.casefold() == 'company a').state = 'cancel'
         pdf = self._render()
         self.assertEqual(len(pdf.pages), 1)
-        self.assertIn('Beta Excavating', pdf.pages[0].extract_text())
+        self.assertIn('Company B', pdf.pages[0].extract_text())
         self.assertIn('Fall Protection', pdf.pages[0].extract_text())
 
     def test_preview_matches_printed_values_and_signature(self):
         values = self.event.get_signup_sheet_pdf_preview_values()
-        self.assertEqual(values['company'].casefold(), 'acme corp')
+        self.assertEqual(values['company'].casefold(), 'company a')
         self.assertEqual(values['topic'], 'Fall Protection')
         self.assertEqual(values['start_time'], '10:05 AM')
         self.assertEqual(values['finish_time'], '10:45 AM')
@@ -178,7 +178,7 @@ class TestSignupSheetPdf(common.TransactionCase):
             'event_certificates_signup.action_event_signup_sheet_report', self.event.ids,
         )
         self.assertEqual(kind, 'html')
-        self.assertIn(b'old signup html acme corp fall protection', content.lower())
+        self.assertIn(b'old signup html company a fall protection', content.lower())
 
     def test_report_and_preview_respect_read_access(self):
         user = self.env['res.users'].create({
